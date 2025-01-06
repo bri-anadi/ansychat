@@ -1,6 +1,6 @@
 import random
 import string
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from models import User, Message, db
 from exceptions import ValidationError, MessageNotFoundException, UnauthorizedAccessException
 
@@ -25,7 +25,7 @@ class UserService:
         return suggestions[:3]
 
     @staticmethod
-    def check_username_availability(username: str) -> tuple[bool, List[str]]:
+    def check_username_availability(username: str) -> Tuple[bool, List[str]]:
         if not username or len(username.strip()) == 0:
             raise ValidationError("Username cannot be empty")
 
@@ -93,3 +93,7 @@ class MessageService:
     @staticmethod
     def search_messages(query: str) -> List[Message]:
         return Message.query.filter(Message.content.like(f'%{query}%')).all()
+
+    @staticmethod
+    def get_user_messages(username: str) -> List[Message]:
+        return Message.query.filter_by(username=username).all()

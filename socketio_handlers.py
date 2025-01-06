@@ -1,9 +1,9 @@
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_jwt_extended import decode_token
 from typing import Dict, Any
+from exceptions import UnauthorizedAccessException
 from models import User
 from services import MessageService
-from exceptions import UnauthorizedAccessException
 
 class SocketIOHandler:
     def __init__(self, socketio: SocketIO):
@@ -52,11 +52,8 @@ class SocketIOHandler:
                 if current_user != data['username']:
                     raise UnauthorizedAccessException("Token username mismatch")
 
-                message = MessageService.create_message(
-                    User.get_by_username(current_user),
-                    data['content']
-                )
-
+                user = User.get_by_username(current_user)
+                message = MessageService.create_message(user, data['content'])
                 emit('message', message.to_dict(), room='chat_room')
             except Exception as e:
                 print(f"Error in handle_new_message: {str(e)}")
@@ -93,6 +90,6 @@ class SocketIOHandler:
                     raise UnauthorizedAccessException("Token username mismatch")
 
                 MessageService.delete_message(int(data['messageId']), current_user)
-                emit('message_deleted', {'messageId': data['messageId']}, room='chat_room')
+                emit('message_deleted', {'messageId': data['messageId']}, broadcast=True)
             except Exception as e:
                 print(f"Error in handle_delete_message: {str(e)}")

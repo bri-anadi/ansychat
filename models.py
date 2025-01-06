@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from typing import Optional
+from typing import List, Optional
 
 db = SQLAlchemy()
 
