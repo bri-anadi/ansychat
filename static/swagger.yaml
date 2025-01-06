@@ -1,0 +1,352 @@
+openapi: 3.0.0
+info:
+  title: Chat Application API
+  description: API documentation for the real-time chat application
+  version: 1.0.0
+
+servers:
+  - url: https://c4e84187-2fe3-47b0-ad91-d5d96f2096fb-00-2o2guq0gxc0q2.sisko.replit.dev/
+    description: Replit server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "john_doe"
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: "john_doe"
+        content:
+          type: string
+          example: "Hello, everyone!"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-06T12:00:00Z"
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Error message"
+
+    WebSocketEvents:
+      description: WebSocket events used in the application
+      type: object
+      properties:
+        connect:
+          type: object
+          description: Fired when client connects to WebSocket
+        disconnect:
+          type: object
+          description: Fired when client disconnects from WebSocket
+        join:
+          type: object
+          properties:
+            username:
+              type: string
+              example: "john_doe"
+          description: Event to join chat room
+        leave:
+          type: object
+          properties:
+            username:
+              type: string
+              example: "john_doe"
+          description: Event to leave chat room
+        new_message:
+          type: object
+          properties:
+            username:
+              type: string
+              example: "john_doe"
+            content:
+              type: string
+              example: "Hello everyone!"
+            token:
+              type: string
+              example: "JWT_TOKEN"
+          description: Event to send a new message
+        edit_message:
+          type: object
+          properties:
+            messageId:
+              type: integer
+              example: 1
+            username:
+              type: string
+              example: "john_doe"
+            content:
+              type: string
+              example: "Updated message"
+            token:
+              type: string
+              example: "JWT_TOKEN"
+          description: Event to edit an existing message
+        delete_message:
+          type: object
+          properties:
+            messageId:
+              type: integer
+              example: 1
+            username:
+              type: string
+              example: "john_doe"
+            token:
+              type: string
+              example: "JWT_TOKEN"
+          description: Event to delete a message
+
+paths:
+  /api/check-username:
+    post:
+      summary: Check username availability
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "john_doe"
+      responses:
+        '200':
+          description: Username is available
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available:
+                    type: boolean
+                    example: true
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+                    example: []
+        '409':
+          description: Username is already in use
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Username is already in use"
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+                    example: ["john_doe1", "john_doe2", "john_doe_ab"]
+
+  /api/login:
+    post:
+      summary: Login or register user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "john_doe"
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '409':
+          description: Username is already in use
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/messages:
+    get:
+      summary: Get all messages
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of all messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+    post:
+      summary: Create a new message
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "Hello, this is a new message!"
+      responses:
+        '201':
+          description: Message created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/messages/{messageId}:
+    parameters:
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: ID of the message
+    get:
+      summary: Get a specific message
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Message details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update a message
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "Updated message content"
+      responses:
+        '200':
+          description: Message updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '403':
+          description: Unauthorized to modify this message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a message
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Message deleted successfully
+        '403':
+          description: Unauthorized to delete this message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/messages/user:
+    get:
+      summary: Get all messages from current user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of user's messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+
+  /api/messages/search:
+    get:
+      summary: Search messages by content
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search query string
+      responses:
+        '200':
+          description: List of matching messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
