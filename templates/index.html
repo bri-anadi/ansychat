@@ -3,82 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-time Chat App</title>
+    <title>Ansychat - Public Chat</title>
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiAgd2lkdGg9IjI0IiAgaGVpZ2h0PSIyNCIgIHZpZXdCb3g9IjAgMCAyNCAyNCIgIGZpbGw9ImN1cnJlbnRDb2xvciIgIGNsYXNzPSJpY29uIGljb24tdGFibGVyIGljb25zLXRhYmxlci1maWxsZWQgaWNvbi10YWJsZXItYWZmaWxpYXRlIj48cGF0aCBzdHJva2U9Im5vbmUiIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMTguNSAzYTIuNSAyLjUgMCAxIDEgLS45MTIgNC44MjhsLTQuNTU2IDQuNTU1YTUuNDc1IDUuNDc1IDAgMCAxIC45MzYgMy43MTRsMi42MjQgLjc4N2EyLjUgMi41IDAgMSAxIC0uNTc1IDEuOTE2bC0yLjYyMyAtLjc4OGE1LjUgNS41IDAgMCAxIC0xMC4zOSAtMi4yOWwtLjAwNCAtLjIyMmwuMDA0IC0uMjIxYTUuNSA1LjUgMCAwIDEgMi45ODQgLTQuNjczbC0uNzg4IC0yLjYyNGEyLjQ5OCAyLjQ5OCAwIDAgMSAtMi4xOTQgLTIuMzA0bC0uMDA2IC0uMTc4bC4wMDUgLS4xNjRhMi41IDIuNSAwIDEgMSA0LjExMSAyLjA3MWwuNzg3IDIuNjI1YTUuNDc1IDUuNDc1IDAgMCAxIDMuNzE0IC45MzZsNC41NTUgLTQuNTU2YTIuNDg3IDIuNDg3IDAgMCAxIC0uMTY3IC0uNzQ4bC0uMDA1IC0uMTY0bC4wMDUgLS4xNjRhMi41IDIuNSAwIDAgMSAyLjQ5NSAtMi4zMzZ6IiAvPjwvc3ZnPg==" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Satoshi', sans-serif;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 h-screen">
-    <!-- Login Form -->
-    <div id="loginForm" class="min-h-screen flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-md w-96">
-            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Chat Login</h2>
-            <div class="space-y-4">
-                <div>
+<body class="bg-gray-50">
+    <div id="loginForm" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+            <div class="text-center space-y-2 mb-8">
+                <h2 class="text-2xl font-bold text-gray-900">Welcome Back</h2>
+                <p class="text-gray-500">Enter your username to continue</p>
+            </div>
+            <div class="space-y-6">
+                <div class="space-y-2">
                     <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-                    <input type="text" id="username" name="username" 
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-blue-500 focus:ring focus:ring-blue-200">
-                    <p id="usernameError" class="mt-1 text-sm text-red-600 hidden"></p>
-                    <div id="usernameSuggestions" class="mt-2 space-y-2 hidden">
-                        <p class="text-sm text-gray-600">Suggested usernames:</p>
-                        <div id="suggestionsList" class="flex flex-wrap gap-2">
-                            <!-- Suggestions will be inserted here -->
-                        </div>
+                    <div class="relative">
+                        <input type="text" id="username" name="username" 
+                               class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-600 focus:ring focus:ring-indigo-100 transition-colors bg-gray-50 text-gray-900"
+                               placeholder="Enter your username" autofocus>
+                        <p id="usernameError" class="mt-2 text-sm text-rose-500 hidden"></p>
+                    </div>
+                    <div id="usernameSuggestions" class="mt-4 hidden">
+                        <p class="text-sm font-medium text-gray-600 mb-2">Suggested usernames:</p>
+                        <div id="suggestionsList" class="flex flex-wrap gap-2"></div>
                     </div>
                 </div>
                 <button onclick="login()" 
-                        class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition duration-200">
-                    Login
+                        class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition duration-200 focus:ring-2 focus:ring-indigo-200 focus:ring-offset-2">
+                    Join Chat
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Chat Interface -->
-    <div id="chatInterface" class="hidden h-screen flex flex-col">
-        <!-- Header -->
-        <div class="bg-blue-500 p-4 text-white flex justify-between items-center">
-            <h1 class="text-xl font-bold">Chat Room</h1>
-            <div class="flex items-center space-x-4">
-                <span id="currentUser" class="font-medium"></span>
+    <div id="chatInterface" class="hidden h-screen flex flex-col bg-gray-50">
+        <div class="bg-white border-b px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-900">Ansychat</h1>
+            <div class="flex items-center space-x-6">
+                <span id="currentUser" class="text-gray-600 font-medium"></span>
                 <button onclick="logout()" 
-                        class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
-                    Logout
+                        class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition duration-200">
+                    Sign Out
                 </button>
             </div>
         </div>
 
-        <!-- Messages Area -->
-        <div class="flex-1 overflow-y-auto p-4 space-y-4" id="messagesArea">
-            <!-- Messages will be inserted here -->
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="max-w-6xl mx-auto space-y-4" id="messagesArea"></div>
         </div>
 
-        <!-- Edit Message Modal -->
-        <div id="editModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-            <div class="bg-white p-4 rounded-lg shadow-lg w-96">
-                <h3 class="text-lg font-bold mb-4">Edit Message</h3>
-                <input type="text" id="editMessageInput" class="w-full border rounded-md p-2 mb-4">
+        <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Edit Message</h3>
+                <input type="text" id="editMessageInput" 
+                       class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-600 focus:ring focus:ring-indigo-100 transition-colors bg-gray-50 mb-4" autofocus>
                 <input type="hidden" id="editMessageId">
-                <div class="flex justify-end space-x-2">
-                    <button onclick="closeEditModal()" class="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400">
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeEditModal()" 
+                            class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition duration-200">
                         Cancel
                     </button>
-                    <button onclick="saveEditedMessage()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                        Save
+                    <button onclick="saveEditedMessage()" 
+                            class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition duration-200">
+                        Save Changes
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Message Input -->
-        <div class="border-t p-4 bg-white">
-            <div class="flex space-x-2">
+        <div class="border-t bg-white p-6">
+            <div class="flex space-x-3 max-w-4xl mx-auto">
                 <input type="text" id="messageInput" 
-                       class="flex-1 border rounded-md p-2 focus:border-blue-500 focus:ring focus:ring-blue-200" 
-                       placeholder="Type your message...">
+                       class="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-600 focus:ring focus:ring-indigo-100 transition-colors bg-gray-50" 
+                       placeholder="Type your message..." autofocus>
                 <button onclick="sendMessage()" 
-                        class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition duration-200">
+                        class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition duration-200 focus:ring-2 focus:ring-indigo-200 focus:ring-offset-2">
                     Send
                 </button>
             </div>
@@ -90,7 +98,6 @@
         let socket = null;
         let isCheckingUsername = false;
 
-        // Initialize Socket.IO connection
         function initializeSocket() {
             socket = io();
 
@@ -220,14 +227,12 @@
             isCheckingUsername = true;
 
             try {
-                // First check if username is available
                 const isAvailable = await checkUsername(username);
                 if (!isAvailable) {
                     isCheckingUsername = false;
                     return;
                 }
 
-                // If username is available, proceed with login
                 const response = await axios.post('/api/login', { username });
                 token = response.data.access_token;
                 document.getElementById('loginForm').classList.add('hidden');
@@ -278,28 +283,25 @@
             const messagesArea = document.getElementById('messagesArea');
             const isCurrentUser = message.username === document.getElementById('currentUser').textContent;
             const messageElement = document.createElement('div');
-    
-            // Make sure this ID is set correctly
-            messageElement.id = `message-${message.id}`;
-            console.log(`Creating message element with ID: message-${message.id}`);
 
+            messageElement.id = `message-${message.id}`;
             messageElement.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`;
 
             messageElement.innerHTML = `
-                <div class="max-w-[70%] ${isCurrentUser ? 'bg-blue-500 text-white' : 'bg-gray-200'} rounded-lg p-3 relative group">
-                    <div class="font-medium text-sm ${isCurrentUser ? 'text-blue-100' : 'text-gray-600'}">${message.username}</div>
-                    <div class="break-words" id="message-content-${message.id}">${message.content}</div>
-                    <div class="text-xs ${isCurrentUser ? 'text-blue-100' : 'text-gray-500'} mt-1">
+                <div class="max-w-[70%] ${isCurrentUser ? 'bg-indigo-600 text-white' : 'bg-white border border-gray-100'} rounded-2xl p-4 shadow-sm relative group">
+                    <div class="font-medium text-sm ${isCurrentUser ? 'text-indigo-100' : 'text-gray-600'}">${message.username}</div>
+                    <div class="break-words mt-1 ${isCurrentUser ? 'text-white' : 'text-gray-900'}" id="message-content-${message.id}">${message.content}</div>
+                    <div class="text-xs ${isCurrentUser ? 'text-indigo-200' : 'text-gray-400'} mt-2">
                         ${new Date(message.timestamp).toLocaleString()}
                     </div>
                     ${isCurrentUser ? `
                         <div class="absolute top-2 right-2 hidden group-hover:flex space-x-2">
                             <button onclick="showEditModal(${message.id}, '${message.content}')" 
-                                    class="text-white hover:text-blue-200 transition-colors">
+                                    class="text-indigo-100 hover:text-white transition-colors">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button onclick="deleteMessage(${message.id})" 
-                                    class="text-white hover:text-blue-200 transition-colors">
+                                    class="text-indigo-100 hover:text-white transition-colors">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -309,7 +311,6 @@
 
             messagesArea.appendChild(messageElement);
             messagesArea.scrollTop = messagesArea.scrollHeight;
-            console.log(`Message ${message.id} appended to DOM`);
         }
         
         function appendSystemMessage(content) {
@@ -317,8 +318,8 @@
             const messageElement = document.createElement('div');
             messageElement.className = 'flex justify-center';
             messageElement.innerHTML = `
-                <div class="max-w-[70%] bg-gray-100 rounded-lg p-2">
-                    <div class="text-sm text-gray-500 text-center">${content}</div>
+                <div class="bg-gray-100 rounded-xl px-4 py-2">
+                    <div class="text-sm text-gray-600 text-center">${content}</div>
                 </div>
             `;
             messagesArea.appendChild(messageElement);
@@ -340,7 +341,6 @@
             messageInput.value = '';
         }
 
-        // Edit message functions
         function showEditModal(messageId, content) {
             document.getElementById('editModal').classList.remove('hidden');
             document.getElementById('editMessageInput').value = content;
@@ -382,20 +382,17 @@
             try {
                 console.log('Starting deletion process for message:', messageId);
 
-                // Tambahkan visual feedback
                 const messageElement = document.getElementById(`message-${messageId}`);
                 if (messageElement) {
                     messageElement.style.opacity = '0.5';
                 }
 
-                // Delete dari server
                 const response = await axios.delete(`/api/messages/${messageId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
                 console.log('Server deletion successful, emitting socket event');
 
-                // Emit socket event untuk delete
                 socket.emit('delete_message', {
                     messageId: messageId,
                     username: document.getElementById('currentUser').textContent,
@@ -406,7 +403,6 @@
 
             } catch (error) {
                 console.error('Error deleting message:', error);
-                // Restore opacity jika gagal
                 if (messageElement) {
                     messageElement.style.opacity = '1';
                 }
@@ -414,21 +410,18 @@
             }
         }
 
-        // Handle Enter key in message input
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
 
-        // Handle Enter key in username input
         document.getElementById('username').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 login();
             }
         });
 
-        // Handle Enter key in edit message input
         document.getElementById('editMessageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 saveEditedMessage();
